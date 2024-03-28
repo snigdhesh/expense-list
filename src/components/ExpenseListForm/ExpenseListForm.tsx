@@ -5,6 +5,7 @@ import { IProduct } from '../../App';
 import {z} from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+//Hint: In zod validations, if condition is satisfied, no message will be displayed. Message display only if condition is not statisfied.
 const schema = z.object({
     description: z.string().min(3),
     amount: z.number({invalid_type_error: "Amount required"}).min(10),

@@ -1,64 +1,70 @@
-import { FieldValues, useForm } from 'react-hook-form'
 import styles from './ExpenseListForm.module.css'
-import { useState } from 'react';
-import { IProduct } from '../../App';
 import {z} from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import categories from '../../data/categories';
 
 //Hint: In zod validations, if condition is satisfied, no message will be displayed. Message display only if condition is not statisfied.
 const schema = z.object({
     description: z.string().min(3),
-    amount: z.number({invalid_type_error: "Amount required"}).min(10),
-    category: z.string().min(3,"Select atleast one category")
+    amount: z.number({invalid_type_error: "Amount required"}).min(1),
+    category: z.string().min(1,"Select atleast one category") //Here 1 is the length of "value" from <select> dropdown
 })
 
-type FormData = z.infer<typeof schema>
+//type IProduct = z.infer<typeof schema> //If this is confusing - you can skip this and create an interface directly like below
+ export interface IProduct{
+    id: number,
+    description: string,
+    amount: number,
+    category: string
+ }
 
 interface ExpenseListFormProps {
-    callback: (data: IProduct) => void
+    onFormSubmit: (product: IProduct) => void
 }
 
-function ExpenseListForm({ callback }: ExpenseListFormProps) {
-    const { register, handleSubmit, formState: {errors,isValid} } = useForm<FormData>({resolver: zodResolver(schema)});
-    let [count, setCount] = useState(0);
-
-    const onSubmit = (data: FieldValues) => {
-        setCount(++count);
-        let product: IProduct = {
-            id: count,
-            description: data.description,
-            amount: data.amount,
-            category: data.category
-        }
-        callback(product)
-    }
+function ExpenseListForm({ onFormSubmit }: ExpenseListFormProps) {
+    const { register, handleSubmit, formState: {errors} } = useForm<IProduct>({resolver: zodResolver(schema)});
 
 
     return (
         <div className={styles.expenseListForm}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="form-group">
-                    <div className="mt-3">
-                        <label htmlFor="" className="form-label fs-3">Description</label>
-                        <input {...register("description")} type="text" className="form-control" />
-                        {errors.description && <p className="text-danger">{errors.description.message}</p>}
+            <form onSubmit={handleSubmit((product)=>onFormSubmit(product))}>
+
+                    {/* description */}
+                    <div className="row mt-3">
+                        <div className="col-sm-6">
+                            <input {...register("description")} type="text" className="form-control" placeholder="Description" />
+                            {errors.description && <p className="text-danger">{errors.description.message}</p>}
+                        </div>
+                        <div className="col-sm-6"></div>
                     </div>
-                    <div className="mt-3">
-                        <label htmlFor="" className="form-label fs-3">Amount</label>
-                        <input {...register("amount",{valueAsNumber: true})} type="number" className="form-control" />
-                        {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
+
+                    {/* amount */}
+                    <div className="row mt-3">
+                        <div className="col-sm-6">
+                            <input {...register("amount",{valueAsNumber: true})} type="number" className="form-control" placeholder="Amount"/>
+                            {errors.amount && <p className="text-danger">{errors.amount.message}</p>}
+                        </div>
+                        <div className="col-sm-6"></div>
                     </div>
-                    <div className="mt-5">
-                        <select {...register("category")} name="category" id="category" className="form-select fs-3">
-                            <option value="">Select category</option>
-                            <option value="groceries">Groceries</option>
-                            <option value="utilities">Utilities</option>
-                            <option value="housing">Housing</option>
-                        </select>
-                        {errors.category && <p className="text-danger">{errors.category.message}</p>}
+
+                    {/* category */}
+                    <div className="row mt-3">
+                        <div className="col-sm-6">
+                            <select {...register("category")} name="category" id="category" className="form-select">
+                                <option value="">Select category</option>
+                                {categories.map(category => <option key={category.id}>{category.value}</option>)}
+                            </select>
+                            {errors.category && <p className="text-danger">{errors.category.message}</p>}
+                        </div>
+                        <div className="col-sm-6"></div>
                     </div>
-                    <div><button disabled={!isValid} className="btn btn-info mt-3" type="submit">Submit</button></div>
-                </div>
+                    <div>
+                        {/* You can add `disabled={!isValid}` property to following button */}
+                        <button className="btn btn-info mt-3" type="submit">Submit</button>
+                    </div>
+                
             </form>
         </div>
     )

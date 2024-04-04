@@ -34,7 +34,7 @@ Getting started
 # section 5
 - How to capture data from FORMs
   - Hint: Use `useRef()` hook
-  - Hint: Use `ngOnChange()` event, to update state object
+  - Hint: Use `onChange()` event, to update state object
   - Hint: Use `npm i react-hook-form@latest`
 - How to handle form submit with `handleSubmit` function coming from `react-hook-form`
 - How to perform schema based form validation
